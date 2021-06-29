@@ -28,9 +28,15 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.3
+
   # QR.Flutter is a Flutter library for simple and fast
   # QR code rendering via a Widget or custom painter.
   qr_flutter: ^4.0.0
+
+  # A QR code scanner that works on both iOS and Android by natively embedding 
+  # the platform view within Flutter. The integration with Flutter is seamless, 
+  # much better than jumping into a native Activity or a ViewController to perform the scan.
+  qr_code_scanner: ^0.5.1
 
 dev_dependencies:
   flutter_test:
