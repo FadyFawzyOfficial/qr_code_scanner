@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:qr_flutter/qr_flutter.dart';
+
 class QRGeneratorPage extends StatefulWidget {
   @override
   _QRGeneratorPageState createState() => _QRGeneratorPageState();
@@ -19,6 +21,11 @@ class _QRGeneratorPageState extends State<QRGeneratorPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              QrImage(
+                data: controller.text,
+                size: 200,
+                backgroundColor: Colors.white,
+              ),
               SizedBox(height: 50),
               buildTextField(context),
             ],
