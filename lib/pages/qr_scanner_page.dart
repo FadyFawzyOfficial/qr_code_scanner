@@ -30,8 +30,17 @@ class _QRScannerPageState extends State<QRScannerPage> {
     );
   }
 
-  Widget buildQrView(BuildContext context) =>
-      QRView(key: qrKey, onQRViewCreated: onQRViewCreated);
+  Widget buildQrView(BuildContext context) => QRView(
+        key: qrKey,
+        onQRViewCreated: onQRViewCreated,
+        overlay: QrScannerOverlayShape(
+          borderWidth: 10,
+          borderLength: 20,
+          borderRadius: 10,
+          borderColor: Theme.of(context).accentColor,
+          cutOutSize: MediaQuery.of(context).size.width * 0.8,
+        ),
+      );
 
   void onQRViewCreated(QRViewController qrViewController) =>
       setState(() => this.qrViewController = qrViewController);
