@@ -37,6 +37,9 @@ class _QRScannerPageState extends State<QRScannerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('QR Code Scanner'),
+      ),
       body: SafeArea(
         child: Stack(
           alignment: Alignment.center,
@@ -102,14 +105,32 @@ class _QRScannerPageState extends State<QRScannerPage> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           IconButton(
-            icon: Icon(Icons.flash_off_rounded),
+            // Display Flash icon depend on Flash Status of Camera
+            icon: FutureBuilder<bool?>(
+                future: qrViewController?.getFlashStatus(),
+                builder: (context, snapshot) {
+                  if (snapshot.data != null)
+                    return snapshot.data!
+                        ? Icon(Icons.flash_on_rounded)
+                        : Icon(Icons.flash_off_rounded);
+                  else
+                    return Container();
+                }),
             onPressed: () async {
               await qrViewController?.toggleFlash();
               setState(() {});
             },
           ),
           IconButton(
-            icon: Icon(Icons.switch_camera_rounded),
+            // Display Switch Camera Icon if camera info (front one) is available
+            icon: FutureBuilder(
+                future: qrViewController?.getCameraInfo(),
+                builder: (context, snapshot) {
+                  if (snapshot.data != null)
+                    return Icon(Icons.switch_camera_rounded);
+                  else
+                    return Container();
+                }),
             onPressed: () async {
               await qrViewController?.flipCamera();
               setState(() {});
