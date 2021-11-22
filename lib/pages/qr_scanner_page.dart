@@ -37,13 +37,17 @@ class _QRScannerPageState extends State<QRScannerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        alignment: Alignment.center,
-        children: [
-          buildQrView(context),
-          // Show the result of scanned qrcode (in toast message)
-          Positioned(bottom: 16, child: buildResult()),
-        ],
+      body: SafeArea(
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            buildQrView(context),
+            // Show the result of scanned qrcode (in toast message)
+            Positioned(bottom: 24, child: buildResult()),
+            // Show 2 button to control the camera flash and side (front & back)
+            Positioned(top: 24, child: buildControlButtons()),
+          ],
+        ),
       ),
     );
   }
@@ -81,6 +85,37 @@ class _QRScannerPageState extends State<QRScannerPage> {
       child: Text(
         barcode != null ? 'Result: ${barcode!.code}' : 'Scan a code!',
         maxLines: 3,
+      ),
+    );
+  }
+
+  Widget buildControlButtons() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white24,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          IconButton(
+            icon: Icon(Icons.flash_off_rounded),
+            onPressed: () async {
+              await qrViewController?.toggleFlash();
+              setState(() {});
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.switch_camera_rounded),
+            onPressed: () async {
+              await qrViewController?.flipCamera();
+              setState(() {});
+            },
+          ),
+        ],
       ),
     );
   }
