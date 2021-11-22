@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import 'package:qr_code_scanner/qr_code_scanner.dart';
@@ -16,6 +18,19 @@ class _QRScannerPageState extends State<QRScannerPage> {
   void dispose() {
     qrViewController?.dispose();
     super.dispose();
+  }
+
+  // In order to get hot reload to work we need to pause the camera if the
+  // platform is android, or resume the camera if the platform is iOS.
+  //! Fix the hot reload for the camera on Android and iOS, so this code is
+  //! needed to let the hot reloaded works without any issue.
+  @override
+  void reassemble() async {
+    super.reassemble();
+
+    if (Platform.isAndroid) await qrViewController!.pauseCamera();
+
+    qrViewController!.resumeCamera();
   }
 
   @override
