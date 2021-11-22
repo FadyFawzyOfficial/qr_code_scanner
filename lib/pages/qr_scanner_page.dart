@@ -13,6 +13,7 @@ class _QRScannerPageState extends State<QRScannerPage> {
   final qrKey = GlobalKey(debugLabel: 'QR');
 
   QRViewController? qrViewController;
+  Barcode? barcode;
 
   @override
   void dispose() {
@@ -40,6 +41,8 @@ class _QRScannerPageState extends State<QRScannerPage> {
         alignment: Alignment.center,
         children: [
           buildQrView(context),
+          // Show the result of scanned qrcode (in toast message)
+          Positioned(bottom: 16, child: buildResult()),
         ],
       ),
     );
@@ -57,6 +60,28 @@ class _QRScannerPageState extends State<QRScannerPage> {
         ),
       );
 
-  void onQRViewCreated(QRViewController qrViewController) =>
-      setState(() => this.qrViewController = qrViewController);
+  void onQRViewCreated(QRViewController qrViewController) {
+    setState(() => this.qrViewController = qrViewController);
+
+    // So is our qr code created (scanned) for the first time,
+    // so we want to listen to our scanned data and get the qr code
+    // that the camera scanned for us.
+    // Then we want to store this inside our state with a barcode variable.
+    qrViewController.scannedDataStream
+        .listen((barcode) => setState(() => this.barcode = barcode));
+  }
+
+  Widget buildResult() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white24,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        barcode != null ? 'Result: ${barcode!.code}' : 'Scan a code!',
+        maxLines: 3,
+      ),
+    );
+  }
 }
