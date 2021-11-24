@@ -149,7 +149,7 @@ class _BoothScannerPageState extends State<BoothScannerPage> {
                 Navigator.pop(context);
                 // Find the ScaffoldMessenger in the widget tree
                 // and use it to show a SnackBar.
-                writeToCsv(widget.boothNumber);
+                writeToCsv();
               },
               child: const Text('OK'),
             ),
@@ -272,33 +272,39 @@ class _BoothScannerPageState extends State<BoothScannerPage> {
   //   }
   // }
 
-  Future<void> writeToCsv(int boothNumber) async {
+  Future<void> writeToCsv() async {
     setState(() {
       _isLoading = true;
     });
     List<List<String>> data = [
-      ["No.", "Name", "Roll No."],
-      ["No.", "Name", "Roll No."],
+      [
+        widget.sessionType,
+        widget.boothNumber.toString(),
+        barcode!.code,
+        DateTime.now().millisecondsSinceEpoch.toString(),
+        // (DateTime.now().millisecondsSinceEpoch / 1000).round().toString(),
+      ],
     ];
     String csvData = ListToCsvConverter().convert(data);
     print('csvData: $csvData');
     final String directory = (await getExternalStorageDirectory())!.path;
-    final path = "$directory/$boothNumber.csv";
+    final path = "$directory/booth${widget.boothNumber}.csv";
     print('path: $path');
     final File file = File(path);
-    await file.writeAsString('$csvData\n', mode: FileMode.writeOnlyAppend);
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) {
-          return LoadCsvDataScreen(path: path);
-        },
-      ),
-    );
-    // .then((_) {
-    //   setState(() {
-    //     _isCompleted = true;
-    //     _isLoading = false;
-    //   });
-    // });
+    await file
+        .writeAsString('$csvData\n', mode: FileMode.writeOnlyAppend)
+        .then((_) {
+      setState(() {
+        _isCompleted = true;
+        _isLoading = false;
+      });
+    });
+    // Navigator.of(context).push(
+    //   MaterialPageRoute(
+    //     builder: (_) {
+    //       return LoadCsvDataScreen(path: path);
+    //     },
+    //   ),
+    // );
   }
 }
