@@ -72,6 +72,7 @@ class _HomePageState extends State<HomePage> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => BoothScannerPage(
+                              isScanner: widget.isScanner,
                               boothNumber: snapshot.data!,
                               sessionType: 'start',
                             ),
@@ -85,6 +86,7 @@ class _HomePageState extends State<HomePage> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => BoothScannerPage(
+                              isScanner: widget.isScanner,
                               boothNumber: snapshot.data!,
                               sessionType: 'end',
                             ),

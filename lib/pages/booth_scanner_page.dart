@@ -8,11 +8,13 @@ import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'home_page.dart';
 
 class BoothScannerPage extends StatefulWidget {
+  final bool isScanner;
   final int boothNumber;
   final String sessionType;
 
   const BoothScannerPage({
     Key? key,
+    required this.isScanner,
     required this.boothNumber,
     required this.sessionType,
   }) : super(key: key);
@@ -22,11 +24,13 @@ class BoothScannerPage extends StatefulWidget {
 }
 
 class _BoothScannerPageState extends State<BoothScannerPage> {
+  final controller = TextEditingController();
   final qrKey = GlobalKey(debugLabel: 'QR');
 
   bool _isLoading = false;
   bool _isCompleted = false;
   QRViewController? qrViewController;
+  String? code;
   Barcode? barcode;
 
   @override
@@ -76,14 +80,61 @@ class _BoothScannerPageState extends State<BoothScannerPage> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => HomePage(
-                                  isScanner: true,
+                                  isScanner: widget.isScanner,
                                 ),
                               ),
                             );
                           },
                         ),
                       )
-                    : buildQrView(context),
+                    : widget.isScanner
+                        ? Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: TextField(
+                                enabled: true,
+                                autocorrect: false,
+                                autofocus: true,
+                                textInputAction: TextInputAction.done,
+                                keyboardType: TextInputType.text,
+                                controller: controller,
+                                decoration: const InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    hintText: 'Enter a Visitor Code'),
+                                onSubmitted: (value) {
+                                  print(value);
+                                  setState(() {
+                                    code = value;
+                                  });
+                                  showDialog<String>(
+                                    context: context,
+                                    builder: (BuildContext context) =>
+                                        AlertDialog(
+                                      title: const Text('Visitor'),
+                                      content: Text('Visitor Code: $code'),
+                                      actions: <Widget>[
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context),
+                                          child: const Text('Cancel'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                            // Find the ScaffoldMessenger in the widget tree
+                                            // and use it to show a SnackBar.
+                                            writeToCsv(widget.isScanner);
+                                          },
+                                          child: const Text('OK'),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          )
+                        : buildQrView(context),
             if (_isCompleted)
               // Show the result of scanned qrcode (in toast message)
               Positioned(bottom: 24, child: buildResult()),
@@ -136,6 +187,7 @@ class _BoothScannerPageState extends State<BoothScannerPage> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => BoothScannerPage(
+                      isScanner: widget.isScanner,
                       boothNumber: widget.boothNumber,
                       sessionType: widget.sessionType),
                 ),
@@ -147,7 +199,7 @@ class _BoothScannerPageState extends State<BoothScannerPage> {
                 Navigator.pop(context);
                 // Find the ScaffoldMessenger in the widget tree
                 // and use it to show a SnackBar.
-                writeToCsv();
+                writeToCsv(widget.isScanner);
               },
               child: const Text('OK'),
             ),
@@ -270,7 +322,7 @@ class _BoothScannerPageState extends State<BoothScannerPage> {
   //   }
   // }
 
-  Future<void> writeToCsv() async {
+  Future<void> writeToCsv(bool isScanner) async {
     setState(() {
       _isLoading = true;
     });
@@ -278,7 +330,7 @@ class _BoothScannerPageState extends State<BoothScannerPage> {
       [
         widget.sessionType,
         widget.boothNumber.toString(),
-        barcode!.code,
+        isScanner ? code! : barcode!.code,
         DateTime.now().millisecondsSinceEpoch.toString(),
         // (DateTime.now().millisecondsSinceEpoch / 1000).round().toString(),
       ],
