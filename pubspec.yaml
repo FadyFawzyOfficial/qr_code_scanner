@@ -47,8 +47,12 @@ dependencies:
   http: ^0.13.4
   # Flutter plugin for reading and writing simple key-value pairs. Wraps NSUserDefaults on iOS and SharedPreferences on Android.
   shared_preferences: ^2.0.9
-  # A wrapper around InheritedWidget to make them easier to use and more reusable.
-  provider: ^6.0.1
+  # A codec to transform between a string and a list of values. The string must be comma (configurable) separated values.
+  csv: ^5.0.1
+  # A package that allows you to use a native file explorer to pick single or multiple absolute file paths, with extension filtering support.
+  file_picker: ^4.2.4
+  #Flutter plugin for getting commonly used locations on host platform file systems, such as the temp and app data directories.
+  path_provider: ^2.0.7
 
 dev_dependencies:
   flutter_test:

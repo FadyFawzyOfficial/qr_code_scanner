@@ -1,7 +1,10 @@
 import 'dart:io';
 
+import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:path_provider/path_provider.dart';
+// import 'package:provider/provider.dart';
+import 'package:qr_code_example/pages/loadCsvDataScreen.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 import '../models/session.dart';
@@ -51,9 +54,9 @@ class _BoothScannerPageState extends State<BoothScannerPage> {
 
   @override
   Widget build(BuildContext context) {
-    final sessionProvider =
-        Provider.of<SessionProvider>(context, listen: false);
-    final sessions = sessionProvider.sessions;
+    // final sessionProvider =
+    //     Provider.of<SessionProvider>(context, listen: false);
+    // final sessions = sessionProvider.sessions;
 
     return Scaffold(
       appBar: AppBar(
@@ -146,7 +149,7 @@ class _BoothScannerPageState extends State<BoothScannerPage> {
                 Navigator.pop(context);
                 // Find the ScaffoldMessenger in the widget tree
                 // and use it to show a SnackBar.
-                addSession();
+                writeToCsv(widget.boothNumber);
               },
               child: const Text('OK'),
             ),
@@ -219,27 +222,27 @@ class _BoothScannerPageState extends State<BoothScannerPage> {
     );
   }
 
-  Future<void> addSession() async {
-    setState(() {
-      _isLoading = true;
-    });
+  // Future<void> addSession() async {
+  //   setState(() {
+  //     _isLoading = true;
+  //   });
 
-    await Provider.of<SessionProvider>(context, listen: false)
-        .addSession(
-      Session(
-        number: '${widget.boothNumber}',
-        type: '${widget.sessionType}',
-        visitorId: '${barcode!.code}',
-        timeStamp: DateTime.now().millisecondsSinceEpoch,
-      ),
-    )
-        .then((_) {
-      setState(() {
-        _isCompleted = true;
-        _isLoading = false;
-      });
-    });
-  }
+  //   await Provider.of<SessionProvider>(context, listen: false)
+  //       .addSession(
+  //     Session(
+  //       number: '${widget.boothNumber}',
+  //       type: '${widget.sessionType}',
+  //       visitorId: '${barcode!.code}',
+  //       timeStamp: DateTime.now().millisecondsSinceEpoch,
+  //     ),
+  //   )
+  //       .then((_) {
+  //     setState(() {
+  //       _isCompleted = true;
+  //       _isLoading = false;
+  //     });
+  //   });
+  // }
 
   // Future<void> post() async {
   //   try {
@@ -269,33 +272,33 @@ class _BoothScannerPageState extends State<BoothScannerPage> {
   //   }
   // }
 
-  // Future<void> writeToCsv(int boothNumber) async {
-  //   setState(() {
-  //     _isLoading = true;
-  //   });
-  //   List<List<String>> data = [
-  //     ["No.", "Name", "Roll No."],
-  //     ["No.", "Name", "Roll No."],
-  //   ];
-  //   String csvData = ListToCsvConverter().convert(data);
-  //   print('csvData: $csvData');
-  //   final String directory = (await getApplicationSupportDirectory()).path;
-  //   final path = "$directory/booth$boothNumber.csv";
-  //   print('path: $path');
-  //   final File file = File(path);
-  //   await file.writeAsString('$csvData\n', mode: FileMode.writeOnlyAppend);
-  //   Navigator.of(context).push(
-  //     MaterialPageRoute(
-  //       builder: (_) {
-  //         return LoadCsvDataScreen(path: path);
-  //       },
-  //     ),
-  //   );
-  //   // .then((_) {
-  //   //   setState(() {
-  //   //     _isCompleted = true;
-  //   //     _isLoading = false;
-  //   //   });
-  //   // });
-  // }
+  Future<void> writeToCsv(int boothNumber) async {
+    setState(() {
+      _isLoading = true;
+    });
+    List<List<String>> data = [
+      ["No.", "Name", "Roll No."],
+      ["No.", "Name", "Roll No."],
+    ];
+    String csvData = ListToCsvConverter().convert(data);
+    print('csvData: $csvData');
+    final String directory = (await getExternalStorageDirectory())!.path;
+    final path = "$directory/$boothNumber.csv";
+    print('path: $path');
+    final File file = File(path);
+    await file.writeAsString('$csvData\n', mode: FileMode.writeOnlyAppend);
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) {
+          return LoadCsvDataScreen(path: path);
+        },
+      ),
+    );
+    // .then((_) {
+    //   setState(() {
+    //     _isCompleted = true;
+    //     _isLoading = false;
+    //   });
+    // });
+  }
 }
