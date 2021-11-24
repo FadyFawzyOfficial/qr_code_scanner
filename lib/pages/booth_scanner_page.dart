@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:qr_code_example/widgets/scan_again.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 import 'home_page.dart';
@@ -70,23 +71,7 @@ class _BoothScannerPageState extends State<BoothScannerPage> {
             _isLoading
                 ? Center(child: CircularProgressIndicator())
                 : _isCompleted
-                    ? Center(
-                        child: FlatButton(
-                          color: Theme.of(context).primaryColor,
-                          child: const Text('Scan Again'),
-                          onPressed: () {
-                            Navigator.pop(context);
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => HomePage(
-                                  isScanner: widget.isScanner,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      )
+                    ? ScanAgain(isScanner: widget.isScanner)
                     : widget.isScanner
                         ? Center(
                             child: Padding(
@@ -106,30 +91,7 @@ class _BoothScannerPageState extends State<BoothScannerPage> {
                                   setState(() {
                                     code = value;
                                   });
-                                  showDialog<String>(
-                                    context: context,
-                                    builder: (BuildContext context) =>
-                                        AlertDialog(
-                                      title: const Text('Visitor'),
-                                      content: Text('Visitor Code: $code'),
-                                      actions: <Widget>[
-                                        TextButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context),
-                                          child: const Text('Cancel'),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                            // Find the ScaffoldMessenger in the widget tree
-                                            // and use it to show a SnackBar.
-                                            writeToCsv(widget.isScanner);
-                                          },
-                                          child: const Text('OK'),
-                                        ),
-                                      ],
-                                    ),
-                                  );
+                                  writeToCsv(widget.isScanner);
                                 },
                               ),
                             ),
