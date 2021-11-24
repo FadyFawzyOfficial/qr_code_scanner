@@ -47,6 +47,8 @@ dependencies:
   http: ^0.13.4
   # Flutter plugin for reading and writing simple key-value pairs. Wraps NSUserDefaults on iOS and SharedPreferences on Android.
   shared_preferences: ^2.0.9
+  # A wrapper around InheritedWidget to make them easier to use and more reusable.
+  provider: ^6.0.1
 
 dev_dependencies:
   flutter_test:
