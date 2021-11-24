@@ -4,6 +4,9 @@ import 'package:qr_code_example/pages/booth_scanner_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
+  final bool isScanner;
+
+  const HomePage({Key? key, required this.isScanner}) : super(key: key);
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -47,7 +50,7 @@ class _HomePageState extends State<HomePage> {
                       maxNumber: 32,
                       minNumber: 1,
                       selectedNumber: snapshot.data,
-                      onChanged: (value) => setCounter(value),
+                      onChanged: (value) => setBooth(value),
                     ),
                   );
                 else
@@ -97,7 +100,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<void> setCounter(int value) async {
+  Future<void> setBooth(int value) async {
     final SharedPreferences prefs = await _prefs;
     setState(() {
       boothNumber = value;

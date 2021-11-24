@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-// import 'package:provider/provider.dart';
 
-import 'pages/home_page.dart';
-import 'providers/session_provider.dart';
+import 'pages/intro_page.dart';
 
 void main() => runApp(MyApp());
 
@@ -16,7 +14,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: HomePage(),
+      home: IntroPage(),
     );
   }
 }

@@ -3,12 +3,8 @@ import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-// import 'package:provider/provider.dart';
-import 'package:qr_code_example/pages/loadCsvDataScreen.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
-import '../models/session.dart';
-import '../providers/session_provider.dart';
 import 'home_page.dart';
 
 class BoothScannerPage extends StatefulWidget {
@@ -79,7 +75,9 @@ class _BoothScannerPageState extends State<BoothScannerPage> {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => HomePage(),
+                                builder: (context) => HomePage(
+                                  isScanner: true,
+                                ),
                               ),
                             );
                           },
