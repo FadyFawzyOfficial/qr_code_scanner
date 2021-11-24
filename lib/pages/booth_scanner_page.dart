@@ -1,17 +1,30 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-
+import 'package:http/http.dart' as http;
+import 'package:qr_code_example/pages/home_page.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
-class QRScannerPage extends StatefulWidget {
+class BoothScannerPage extends StatefulWidget {
+  final int boothNumber;
+  final String sessionType;
+
+  const BoothScannerPage({
+    Key? key,
+    required this.boothNumber,
+    required this.sessionType,
+  }) : super(key: key);
+
   @override
-  _QRScannerPageState createState() => _QRScannerPageState();
+  _BoothScannerPageState createState() => _BoothScannerPageState();
 }
 
-class _QRScannerPageState extends State<QRScannerPage> {
+class _BoothScannerPageState extends State<BoothScannerPage> {
   final qrKey = GlobalKey(debugLabel: 'QR');
 
+  bool _isLoading = false;
+  bool _isCompleted = false;
   QRViewController? qrViewController;
   Barcode? barcode;
 
@@ -38,17 +51,38 @@ class _QRScannerPageState extends State<QRScannerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('QR Code Scanner'),
+        title: const Text('Booth Scanner'),
+        automaticallyImplyLeading: false,
       ),
       body: SafeArea(
         child: Stack(
           alignment: Alignment.center,
           children: [
-            buildQrView(context),
-            // Show the result of scanned qrcode (in toast message)
-            Positioned(bottom: 24, child: buildResult()),
-            // Show 2 button to control the camera flash and side (front & back)
-            Positioned(top: 24, child: buildControlButtons()),
+            _isLoading
+                ? Center(child: CircularProgressIndicator())
+                : _isCompleted
+                    ? Center(
+                        child: FlatButton(
+                          color: Theme.of(context).primaryColor,
+                          child: const Text('Scan Again'),
+                          onPressed: () {
+                            Navigator.pop(context);
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => HomePage(),
+                              ),
+                            );
+                          },
+                        ),
+                      )
+                    : buildQrView(context),
+            if (!_isLoading || _isCompleted)
+              // Show the result of scanned qrcode (in toast message)
+              Positioned(bottom: 24, child: buildResult()),
+            if (!_isLoading || _isCompleted)
+              // Show 2 button to control the camera flash and side (front & back)
+              Positioned(top: 24, child: buildControlButtons()),
           ],
         ),
       ),
@@ -74,8 +108,39 @@ class _QRScannerPageState extends State<QRScannerPage> {
     // so we want to listen to our scanned data and get the qr code
     // that the camera scanned for us.
     // Then we want to store this inside our state with a barcode variable.
-    qrViewController.scannedDataStream
-        .listen((barcode) => setState(() => this.barcode = barcode));
+    qrViewController.scannedDataStream.first.then((scanData) {
+      setState(() => this.barcode = scanData);
+
+      //* Note that because onQRViewCreated function listens to a stream it will
+      //* fire multiple times before we can check the result.
+      //! This could lead to launching multiple instances of the same page.
+      //* To prevent that we pause and resume camera work when we check for
+      //* validity of found data.
+      // qrViewController.pauseCamera();
+
+      showDialog<String>(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          title: const Text('Visitor'),
+          content: Text('Visitor Code: ${barcode!.code}'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(context, 'Cancel'),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                // Find the ScaffoldMessenger in the widget tree
+                // and use it to show a SnackBar.
+                post();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   Widget buildResult() {
@@ -139,5 +204,33 @@ class _QRScannerPageState extends State<QRScannerPage> {
         ],
       ),
     );
+  }
+
+  Future<void> post() async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+      await http.post(
+        Uri.parse('https://expo5.macber-eg.com/api/session'),
+        body: json.encode({
+          'type': '${widget.sessionType}',
+          'pos': '${widget.boothNumber}',
+          'visitor_id': '${barcode!.code}',
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      ).then((response) {
+        print(response.body);
+        setState(() {
+          _isCompleted = true;
+          _isLoading = false;
+        });
+      });
+    } catch (error) {
+      // Throw the error to handle it in Widget level
+      throw error;
+    }
   }
 }

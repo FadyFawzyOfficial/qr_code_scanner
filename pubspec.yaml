@@ -37,6 +37,16 @@ dependencies:
   # the platform view within Flutter. The integration with Flutter is seamless, 
   # much better than jumping into a native Activity or a ViewController to perform the scan.
   qr_code_scanner: ^0.5.1
+  # A flutter package for easily and consistently showing material themed picker dialogs.
+  # A flutter package containing commonly used material design picker dialogs.
+  # Some are new, some wrap existing or built in pickers with a common dialog and access function.
+  flutter_material_pickers: ^3.1.2
+  # A composable, multi-platform, Future-based API for HTTP requests.
+  # This package contains a set of high-level functions and classes that make it easy to consume HTTP resources.
+  # It's multi-platform, and supports mobile, desktop, and the browser.
+  http: ^0.13.4
+  # Flutter plugin for reading and writing simple key-value pairs. Wraps NSUserDefaults on iOS and SharedPreferences on Android.
+  shared_preferences: ^2.0.9
 
 dev_dependencies:
   flutter_test:
