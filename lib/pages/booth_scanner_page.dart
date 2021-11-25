@@ -3,8 +3,10 @@ import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:qr_code_example/pages/sync_data.dart';
 import 'package:qr_code_example/widgets/scan_again.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'home_page.dart';
 
@@ -63,6 +65,17 @@ class _BoothScannerPageState extends State<BoothScannerPage> {
       appBar: AppBar(
         title: const Text('Booth Scanner'),
         automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SyncData(),
+              ),
+            ),
+            icon: Icon(Icons.upload_rounded),
+          )
+        ],
       ),
       body: SafeArea(
         child: Stack(
@@ -158,6 +171,7 @@ class _BoothScannerPageState extends State<BoothScannerPage> {
             ),
             TextButton(
               onPressed: () {
+                Navigator.pop(context);
                 Navigator.pop(context);
                 // Find the ScaffoldMessenger in the widget tree
                 // and use it to show a SnackBar.
@@ -285,6 +299,8 @@ class _BoothScannerPageState extends State<BoothScannerPage> {
   // }
 
   Future<void> writeToCsv(bool isScanner) async {
+    String oldPath;
+    String path;
     setState(() {
       _isLoading = true;
     });
@@ -298,13 +314,21 @@ class _BoothScannerPageState extends State<BoothScannerPage> {
     ];
     String csvData = ListToCsvConverter().convert(data);
     print('csvData: $csvData');
-    final String directory = (await getExternalStorageDirectory())!.path;
-    final path = "$directory/booth${widget.boothNumber}.csv";
-    print('path: $path');
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.containsKey('Path')
+        ? oldPath = prefs.getString('Path')!
+        : oldPath = '';
+    if (oldPath == '') {
+      final String directory = (await getExternalStorageDirectory())!.path;
+      path = "$directory/booth${widget.boothNumber}_1.csv";
+      print('path: $path');
+      prefs.setString('Path', path);
+    } else
+      path = oldPath;
     final File file = File(path);
-    await file
-        .writeAsString('$csvData\n', mode: FileMode.writeOnlyAppend)
-        .then((_) {
+    // Most Important
+    //! eol: The new line string. By default '\r\n'. Another common value: '\n'
+    await file.writeAsString(csvData + '\r\n', mode: FileMode.append).then((_) {
       setState(() {
         _isCompleted = true;
         _isLoading = false;
