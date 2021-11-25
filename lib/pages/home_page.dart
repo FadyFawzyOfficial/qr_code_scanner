@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_material_pickers/helpers/show_number_picker.dart';
 import 'package:qr_code_example/pages/booth_scanner_page.dart';
+import 'package:qr_code_example/widgets/go_scanner.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
@@ -53,6 +54,8 @@ class _HomePageState extends State<HomePage> {
                       onChanged: (value) => setBooth(value),
                     ),
                   );
+                else if (widget.isScanner)
+                  return GoScanner(boothNumber: snapshot.data!);
                 else
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
