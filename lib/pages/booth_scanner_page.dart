@@ -293,8 +293,7 @@ class _BoothScannerPageState extends State<BoothScannerPage> {
         widget.sessionType,
         widget.boothNumber.toString(),
         isScanner ? code! : barcode!.code,
-        DateTime.now().millisecondsSinceEpoch.toString(),
-        // (DateTime.now().millisecondsSinceEpoch / 1000).round().toString(),
+        (DateTime.now().millisecondsSinceEpoch / 1000).round().toString(),
       ],
     ];
     String csvData = ListToCsvConverter().convert(data);
